@@ -1,10 +1,5 @@
 /*
- * Maze.java 
- * Author: Irene Alvarado 
- * Maze object that creates a maze using a
- * disjoint set representing blocks and running a modified version of Kruskal's
- * algorithm to remove walls. In the end, the maze walls are drawn as well as a
- * unique path in red dots.
+ * Java Graphics idea from: Irene Alvarado 
  */
 
 import java.lang.NoSuchFieldException;
@@ -47,12 +42,13 @@ public class Maze {
 	public class Block {
 		boolean ball;
 		Color color;
-		boolean wall;
+
+		final boolean wall;
 		int visitedBy;
 		String label;
 		
-		public Block() {
-			wall = false;
+		public Block(boolean wall) {
+			this.wall = wall;
 			visitedBy = -1;
 			label = null;
 
@@ -106,16 +102,13 @@ public class Maze {
 
 		blocks = new Block[mazeSize];
 		for (int i = 0; i < mazeSize; i++) {
-			blocks[i] = new Block();
-
-
 			if(matriz[i].equals("1")) {
-				blocks[i].wall = true;
+				blocks[i] = new Block(true);
 			} else {
+				blocks[i] = new Block(false);
+
 				if(matriz[i].equals("E") || matriz[i].equals("S"))
 					blocks[i].label = matriz[i];
-
-				blocks[i].wall = false;
 			}
 		}
 	

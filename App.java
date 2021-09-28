@@ -31,7 +31,7 @@ public class App {
 			/**/		e.printStackTrace();			/**/
 			/**/	}									/**/
 			/*--------------------------------------------*/
-		} catch(ArrayIndexOutOfBoundsException aioobe) {
+		} catch (ArrayIndexOutOfBoundsException aioobe) {
 			System.out.println("The input must be the table file name.");
 		}
 	}
@@ -41,14 +41,14 @@ class TablePanel extends JPanel {
 	private Table table;
 
 	public TablePanel(Table table) {
-		this.table = table;
 		table.setPanel(this);
+		this.table = table;
 	}
 
 	public void paintComponent(Graphics page) {
+		this.setPreferredSize(table.windowSize());
 		super.paintComponent(page);		
 		setBackground(Color.white);
-		this.setPreferredSize(table.windowSize());
 		table.draw(page);
 	}
 }

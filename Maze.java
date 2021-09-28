@@ -1,5 +1,8 @@
 /*
  * Java Graphics idea from: Irene Alvarado 
+ *
+ *	moodle.pucrs.br/pluginfile.php/3858618/mod_resource/content/1/NRainhas.java
+ *	moodle.pucrs.br/pluginfile.php/3849965/mod_resource/content/1/AG.java
  */
 
 import java.lang.NoSuchFieldException;
@@ -26,10 +29,14 @@ public class Maze {
 	public final int X_LENGTH; // buffer between window edge and maze
 	public final int Y_LENGTH; // buffer between window edge and maze
 	
-	private int N;
-	private Block[] blocks; // array containing all the blocks in the maze
-	private boolean[] path; // array representing the unique path solution
-	
+	private Block[] blocks; // array containing all the blocks in the maze	
+
+    private int mazeSize;
+    
+    private ArrayList<Integer> road;
+    private int entrance;
+    private int exit;
+
 
 	private MazePanel panel;
 
@@ -40,12 +47,12 @@ public class Maze {
 	final int WEST = 3 ;
 
 	public class Block {
-		boolean ball;
-		Color color;
-
 		final boolean wall;
 		int visitedBy;
 		String label;
+
+		boolean ball;
+		Color color;
 		
 		public Block(boolean wall) {
 			this.wall = wall;
@@ -63,6 +70,7 @@ public class Maze {
 
 	public Maze(String filename) {
 		ArrayList<String[]> fileArray = new ArrayList<String[]>();
+		road = new ArrayList<Integer>();
 		File file = new File(filename);
 		FileReader fileReader;
 		BufferedReader reader;
@@ -88,9 +96,8 @@ public class Maze {
 
 		X_LENGTH = fileArray.get(0).length;
 		Y_LENGTH = fileArray.size();
-		int mazeSize = X_LENGTH * Y_LENGTH;
+		mazeSize = X_LENGTH * Y_LENGTH;
 		String[] matriz = new String[mazeSize];
-		N = 12;
 
 		int count = 0;
 		for(String[] s : fileArray) {
@@ -100,33 +107,64 @@ public class Maze {
 			}
 		}
 
+
 		blocks = new Block[mazeSize];
 		for (int i = 0; i < mazeSize; i++) {
 			if(matriz[i].equals("1")) {
 				blocks[i] = new Block(true);
 			} else {
 				blocks[i] = new Block(false);
+				road.add(i);
 
-				if(matriz[i].equals("E") || matriz[i].equals("S"))
+				if(matriz[i].equals("E")) {
 					blocks[i].label = matriz[i];
+					entrance = i;
+				}
+				if(matriz[i].equals("S")) {
+					blocks[i].label = matriz[i];
+					exit = i;
+				}
 			}
-		}
-	
-		if(N > 0) {	
-			path = new boolean[mazeSize];
-			// createPath();
 		}
 	}
 
+
+	public Integer getUpPos(int cur) {
+		if( (cur + X_LENGTH) > mazeSize ) return null;
+		return cur + X_LENGTH;
+	}
+	public Integer getDownPos(int cur)  {
+		if( (cur - X_LENGTH) < 0 ) return null;
+		return cur - X_LENGTH;
+	}
+	public Integer getLeftPos(int cur)  {
+		if( (cur - 1)/X_LENGTH != (cur/X_LENGTH) ) return null;
+		return cur - 1;
+	}
+	public Integer getRightPos(int cur) {
+		if( (cur + 1)/X_LENGTH != (cur/X_LENGTH) ) return null;
+		return cur + 1;
+	}
+
+	public int getExit() 	 { return exit; }
+	public int getEntrance() { return entrance; }
+	public Integer[] getRoad() 	 { return (Integer[]) road.toArray(); }
 
 	public boolean isWall(int pos) { return blocks[pos].wall; }
 	public boolean isWall(int x, int y) { return blocks[(y * Y_LENGTH) + x].wall; }
 
 	public void setSpot(Color color, int x, int y) throws NoSuchFieldException {
-		if(blocks[(y * Y_LENGTH) + x].wall == true)
-			throw new NoSuchFieldException("You are trying to move inside a wall.\nPOS:"+(y * Y_LENGTH) + x+" -> X:"+x+" Y:"+y);
-		blocks[(y * Y_LENGTH) + x].ball = true;
-		blocks[(y * Y_LENGTH) + x].color = color;
+		try {
+			setSpot(color, ((y * Y_LENGTH) + x));
+		} catch (NoSuchFieldException e) {
+			throw new NoSuchFieldException(e.getMessage() + " X:" + x + " Y:" + y);
+		}
+	}
+	public void setSpot(Color color, int pos) throws NoSuchFieldException {
+		if(blocks[pos].wall == true)
+			throw new NoSuchFieldException("You are trying to move inside a wall.\nPOS:" + pos);
+		blocks[pos].ball = true;
+		blocks[pos].color = color;
 		panel.repaint();
 	}
 
@@ -144,7 +182,6 @@ public class Maze {
 				if(blocks[count].label != null) {
 					g.setFont(font);
 					g.drawString(blocks[count].label, (i * (CELL_WIDTH) + (CELL_WIDTH/3) + MARGIN), (j * (CELL_WIDTH) + (CELL_WIDTH) + MARGIN));
-					// g.drawString(blocks[count].label, (i * (CELL_WIDTH+2) + MARGIN), (j * (CELL_WIDTH+2) + MARGIN));
 				}
 
 				if(blocks[count].ball == true) {

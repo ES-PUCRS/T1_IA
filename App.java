@@ -12,6 +12,8 @@ public class App {
 			MazePanel panel = new MazePanel(maze);
 			JScrollPane scrollPane = new JScrollPane(panel);
 			
+			PathFinderAStar pathFinderAStar = new PathFinderAStar(maze);
+
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.add(scrollPane, BorderLayout.CENTER);
 			frame.setVisible(true);
@@ -21,15 +23,15 @@ public class App {
 			/* Magic happens here ------------------------*/
 			/**/	//CALL IA 							/**/
 			/**/	try {								/**/
-			/**/		//Print a red dot on the screen /**/		
-			/**/		maze.setSpot(Color.RED, 0, 0);	/**/		
-			/**/	} catch (Exception e) {				/**/	
-			/**/		e.printStackTrace();			/**/		
-			/**/	}									/**/	
+			/**/		Thread.sleep(5000);				/**/
+			/**/		pathFinderAStar.findPath();		/**/
+			/**/	} catch (Exception e) {				/**/
+			/**/		e.printStackTrace();			/**/
+			/**/	}									/**/
 			/*--------------------------------------------*/
 
 		} catch(NumberFormatException exception) {
-			System.out.println("The input must be the maze file name.") ;
+			System.out.println("The input must be the maze file name.");
 		}
 	}
 }

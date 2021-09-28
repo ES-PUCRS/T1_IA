@@ -1,7 +1,7 @@
 # Compiled class file
 *.class
 /class
-
+aestrela/*
 # Log file
 *.log
 

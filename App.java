@@ -4,9 +4,10 @@ import java.io.*;
 
 public class App {
 
-	public static final int delay = 10; //ms
+	public static final int delay = 5; //ms
 	public static final int begin = 1500; //ms
 
+	public static final boolean PDM = false;
 	public static void main(String[] args) throws IOException, InterruptedException {
 		try {
 			Table table = new Table(args[0]);

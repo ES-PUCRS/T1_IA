@@ -16,6 +16,9 @@ import java.util.Random;
 import java.io.File;
 import java.awt.*;
 
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,17 +43,11 @@ public class Table {
 
     private String message;
 
+	private BufferedImage img;
 	private TablePanel panel;
-
-
-	final int NORTH = 0 ;
-	final int SOUTH = 1 ;
-	final int EAST = 2 ;
-	final int WEST = 3 ;
 
 	public class Block {
 		final boolean wall;
-		int visitedBy;
 		String label;
 
 		boolean ball;
@@ -58,11 +55,9 @@ public class Table {
 		
 		public Block(boolean wall) {
 			this.wall = wall;
-			visitedBy = -1;
 			label = null;
-
-			ball = false;
 			color = null;
+			ball = false;
 		}
 	}
 	
@@ -85,6 +80,7 @@ public class Table {
 			reader = new BufferedReader(fileReader);
 			
 			try {
+				img = ImageIO.read(new File("dot.jpg"));
 				while((line = reader.readLine()) != null)
 					fileArray.add(line.split(" "));
 
@@ -162,6 +158,7 @@ public class Table {
 		panel.repaint();
 	}
 
+	
 	public void setSpot(Color color, int x, int y) throws NoSuchFieldException {
 		try {
 			setSpot(color, ((y * Y_LENGTH) + x));
@@ -178,11 +175,16 @@ public class Table {
 	}
 
 	public void draw(Graphics g) {
+		int xCoord, yCoord, xDotBase, yDotBase;
 		g.setColor(Color.BLACK);
-		
+
 		for (int i = 0; i < X_LENGTH; i++) {
 			int count = i;
 			for (int j = 0; j < Y_LENGTH; j++) {
+
+				xCoord = i * CELL_WIDTH + MARGIN;
+				yCoord = j * CELL_WIDTH + MARGIN;
+
 				if (j != 0) {
 					count += X_LENGTH;
 				}
@@ -194,23 +196,29 @@ public class Table {
 				}
 
 				if (blocks[count].ball == true) {
-					g.setColor(blocks[count].color);
-					g.fillOval(i * CELL_WIDTH + MARGIN + DOT_MARGIN, j * CELL_WIDTH
-						+ MARGIN + DOT_MARGIN, DOT_SIZE, DOT_SIZE);
-					g.setColor(Color.BLACK);
+					xDotBase = i * CELL_WIDTH + MARGIN + DOT_MARGIN;
+					yDotBase = j * CELL_WIDTH + MARGIN + DOT_MARGIN;
+					if(App.PDM == true && PathFinderAStar.FINISH_PATH == blocks[count].color) {
+						try {
+							g.drawImage(img, xDotBase-5, yDotBase-5, DOT_SIZE+10, DOT_SIZE+10, null);
+						} catch (Exception ignored) {}
+					} else {
+						g.setColor(blocks[count].color);
+						g.fillOval(xDotBase, yDotBase, DOT_SIZE, DOT_SIZE);
+						g.setColor(Color.BLACK);
+					}
 				}
 
 				if (blocks[count].wall == true) {
-					g.drawLine((i * CELL_WIDTH + MARGIN), (j * CELL_WIDTH + MARGIN),
+					g.drawLine(xCoord, yCoord,
 						((i + 1) * CELL_WIDTH + MARGIN), (j * CELL_WIDTH + MARGIN));
-					g.drawLine(i * CELL_WIDTH + MARGIN, (j + 1) * CELL_WIDTH
+					g.drawLine(xCoord, (j + 1) * CELL_WIDTH
 						+ MARGIN, (i + 1) * CELL_WIDTH + MARGIN, (j + 1) * CELL_WIDTH
 						+ MARGIN);
 					g.drawLine((i + 1) * CELL_WIDTH + MARGIN, j * CELL_WIDTH
 						+ MARGIN, (i + 1) * CELL_WIDTH + MARGIN, (j + 1) * CELL_WIDTH
 						+ MARGIN);
-					g.drawLine(i * CELL_WIDTH + MARGIN, j * CELL_WIDTH + MARGIN, i
-						* CELL_WIDTH + MARGIN, (j + 1) * CELL_WIDTH + MARGIN);
+					g.drawLine(xCoord, yCoord, xCoord, (j + 1) * CELL_WIDTH + MARGIN);
 				}
 			}
 

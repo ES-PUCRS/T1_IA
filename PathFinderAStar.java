@@ -18,10 +18,10 @@ import java.awt.Color;
  *  https://qiao.github.io/PathFinding.js/visual/
  */
 public class PathFinderAStar {
-    private final Color PREVIOUS_SPOTS  = Color.GRAY;
-    private final Color UNKNOWN_SPOT    = Color.CYAN;
-    private final Color CURRENT_SPOT    = Color.BLUE;
-    private final Color FINISH_PATH     = Color.GREEN;
+    public static final Color PREVIOUS_SPOTS  = Color.GRAY;
+    public static final Color UNKNOWN_SPOT    = Color.CYAN;
+    public static final Color CURRENT_SPOT    = Color.BLUE;
+    public static final Color FINISH_PATH     = Color.GREEN;
 
     public static final int G_WEIGHT = 1;
 

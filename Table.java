@@ -19,20 +19,20 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
-public class Maze {
+public class Table {
 	public static final Font font = new Font("Arial", Font.PLAIN, 20);
 
-	public static final int CELL_WIDTH = 20; // maze square size
+	public static final int CELL_WIDTH = 20; // table square size
 	public static final int DOT_MARGIN = 5; // space between wall and dot
-	public static final int DOT_SIZE = 10; // size of maze solution dot
-	public static final int MARGIN = 50; // buffer between window edge and maze
+	public static final int DOT_SIZE = 10; // size of table solution dot
+	public static final int MARGIN = 50; // buffer between window edge and table
 	
-	public final int X_LENGTH; // buffer between window edge and maze
-	public final int Y_LENGTH; // buffer between window edge and maze
+	public final int X_LENGTH; // buffer between window edge and table
+	public final int Y_LENGTH; // buffer between window edge and table
 	
-	private Block[] blocks; // array containing all the blocks in the maze	
+	private Block[] blocks; // array containing all the blocks in the table	
 
-    private int mazeSize;
+    private int tableSize;
     
     private ArrayList<Integer> road;
     private Integer entrance;
@@ -40,7 +40,7 @@ public class Maze {
 
     private String message;
 
-	private MazePanel panel;
+	private TablePanel panel;
 
 
 	final int NORTH = 0 ;
@@ -66,11 +66,11 @@ public class Maze {
 		}
 	}
 	
-	public void setPanel(MazePanel panel) {
+	public void setPanel(TablePanel panel) {
 		this.panel = panel;
 	}
 
-	public Maze(String filename) {
+	public Table(String filename) {
 		ArrayList<String[]> fileArray = new ArrayList<String[]>();
 		road = new ArrayList<Integer>();
 		File file = new File(filename);
@@ -100,8 +100,8 @@ public class Maze {
 
 		X_LENGTH = fileArray.get(0).length;
 		Y_LENGTH = fileArray.size();
-		mazeSize = X_LENGTH * Y_LENGTH;
-		String[] matriz = new String[mazeSize];
+		tableSize = X_LENGTH * Y_LENGTH;
+		String[] matriz = new String[tableSize];
 
 		int count = 0;
 		for(String[] s : fileArray) {
@@ -112,8 +112,8 @@ public class Maze {
 		}
 
 
-		blocks = new Block[mazeSize];
-		for (int i = 0; i < mazeSize; i++) {
+		blocks = new Block[tableSize];
+		for (int i = 0; i < tableSize; i++) {
 			if(matriz[i].equals("1")) {
 				blocks[i] = new Block(true);
 			} else {
@@ -134,7 +134,7 @@ public class Maze {
 
 
 	public Integer getUpPos(int cur) {
-		if( (cur + X_LENGTH) > mazeSize ) return null;
+		if( (cur + X_LENGTH) > tableSize ) return null;
 		return cur + X_LENGTH;
 	}
 	public Integer getDownPos(int cur)  {

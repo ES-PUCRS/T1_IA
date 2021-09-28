@@ -34,46 +34,48 @@ public class PathFinderAStar {
     private Node current;
 
 
-    private Maze maze;
+    private Table table;
 
     private final int roadStones;
     private final int xExitCoord;
     private final int yExitCoord;
 
-    public PathFinderAStar(Maze maze) {
+    public PathFinderAStar(Table table) {
         this.connections = new ArrayList<Node>();
         this.unknown = new ArrayList<Node>();
         this.known = new ArrayList<Node>();
-        this.maze = maze;
+        this.table = table;
 
-        this.xExitCoord = maze.getExit() % maze.X_LENGTH;
-        this.yExitCoord = maze.getExit() / maze.X_LENGTH;
-        this.roadStones = maze.getRoad().size();
+        this.xExitCoord = table.getExit() % table.X_LENGTH;
+        this.yExitCoord = table.getExit() / table.X_LENGTH;
+        this.roadStones = table.getRoad().size();
     }
 
 
     public void findPath() throws InterruptedException {
         unknown.addAll(
             Arrays.stream(
-                        maze.getRoad()
+                        table.getRoad()
                             .toArray()
                     ).map(i -> new Node((Integer) i))
                      .collect(Collectors.toList())
         );
 
         try {
-            current = begin = findById(unknown, maze.getEntrance());
-            finish = findById(unknown, maze.getExit());
-            maze.setSpot(Color.BLUE, current.getId());
+            current = begin = findById(unknown, table.getEntrance());
+            finish = findById(unknown, table.getExit());
+            table.setSpot(Color.BLUE, current.getId());
             unknown.remove(current);
         } catch (NullPointerException npe) {
+            String error = "There is no entrance or exit.";
+            table.setMessage(error);
             throw new
-                InterruptedException("There is no entrance or exit.");
+                InterruptedException(error);
         } catch (NoSuchFieldException nsfe) {
             nsfe.printStackTrace();
         }
 
-        maze.setMessage(
+        table.setMessage(
             search()
         );
     }
@@ -100,7 +102,7 @@ public class PathFinderAStar {
         distance = finish.getWeight();
         while(aux != null){
             try {
-                maze.setSpot(FINISH_PATH, aux.getId());
+                table.setSpot(FINISH_PATH, aux.getId());
             } catch (NoSuchFieldException ignored) {}
 
             path = (aux.getId()+1)+" "+path;
@@ -118,9 +120,10 @@ public class PathFinderAStar {
 
 
     private Node moveTo(Node prev, Node node) {
+        if(node == null) return node;
         try {
-            maze.setSpot(PREVIOUS_SPOTS, prev.getId());
-            maze.setSpot(CURRENT_SPOT, node.getId());
+            table.setSpot(PREVIOUS_SPOTS, prev.getId());
+            table.setSpot(CURRENT_SPOT, node.getId());
             unknown.remove(node);
         } catch (NoSuchFieldException nsfe) {
             nsfe.printStackTrace();
@@ -141,10 +144,10 @@ public class PathFinderAStar {
 
     private void insertConnection(int id) {
         int newWeight = current.getWeight() + G_WEIGHT;
-        wire(maze.getUpPos(id), newWeight);
-        wire(maze.getDownPos(id), newWeight);
-        wire(maze.getLeftPos(id), newWeight);
-        wire(maze.getRightPos(id), newWeight);
+        wire(table.getUpPos(id), newWeight);
+        wire(table.getDownPos(id), newWeight);
+        wire(table.getLeftPos(id), newWeight);
+        wire(table.getRightPos(id), newWeight);
     }
 
     private void wire(Integer id, int newWeight) {
@@ -158,7 +161,7 @@ public class PathFinderAStar {
                     aux.setPrev(current); 
                     connections.add(aux);
                     unknown.remove(aux);
-                    maze.setSpot(UNKNOWN_SPOT, aux.getId());
+                    table.setSpot(UNKNOWN_SPOT, aux.getId());
                 } catch (NoSuchFieldException nsfe) {
                     nsfe.printStackTrace();
                 }
@@ -197,7 +200,7 @@ public class PathFinderAStar {
 
     private int heuristic(Node n) {
         return
-            Math.abs((n.getId() % maze.X_LENGTH) - xExitCoord) +
-            Math.abs((n.getId() / maze.X_LENGTH) - yExitCoord);
+            Math.abs((n.getId() % table.X_LENGTH) - xExitCoord) +
+            Math.abs((n.getId() / table.X_LENGTH) - yExitCoord);
     }
 }

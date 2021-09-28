@@ -4,6 +4,8 @@ import java.io.*;
 
 public class App {
 
+	public static final int delay = 100;
+
 	public static void main(String[] args) throws IOException, InterruptedException {
 		try {
 			Maze maze = new Maze(args[0]);
@@ -23,7 +25,7 @@ public class App {
 			/* Magic happens here ------------------------*/
 			/**/	//CALL IA 							/**/
 			/**/	try {								/**/
-			/**/		Thread.sleep(5000);				/**/
+			/**/		Thread.sleep(1000);				/**/
 			/**/		pathFinderAStar.findPath();		/**/
 			/**/	} catch (Exception e) {				/**/
 			/**/		e.printStackTrace();			/**/

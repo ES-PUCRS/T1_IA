@@ -1,32 +1,37 @@
 public class Node {
 
-	private int peso;
-	private int idNo;
-	private Node ant;
+	private Node prev;
+	private int id;
+	private int weight;
 	
 	public Node(int id){
-		this.idNo = id;
-		peso= 0;
-		ant = null;
+		this.id = id;
+		prev = null;
+		weight = 0;
 	}
 	
-	public int getId(){
-		return idNo;
+	public int getId() {
+		return id;
 	}
 	
-	public void setPeso(int peso){
-		this.peso = peso;
+	public void setWeight(int weight) {
+		this.weight = weight;
 	}
 	
-	public void setAnt(Node n){
-		ant = n;
+	public void setPrev(Node n) {
+		prev = n;
 	}
 	
-	public Node getAnt(){
-		return ant;
+	public Node getPrev() {
+		return prev;
 	}
 	
-	public int getPeso(){
-		return peso;
+	public int getWeight() {
+		return weight;
+	}
+
+	@Override
+	public String toString() {
+		return Integer.toString(id);
 	}
 }

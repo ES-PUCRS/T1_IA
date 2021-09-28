@@ -1,140 +1,203 @@
+import java.lang.InterruptedException;
+import java.lang.NullPointerException;
+
+import java.util.stream.Collectors;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import java.awt.Color;
 
+/*
+ *  f(n) = g(n) + h(n)
+ *
+ *  g(n) -> The exact cost of the path from starting point to any vertex n;
+ *  h(n) -> Heuristic estimated cost from vertex n to the goal;
+ *
+ *  https://qiao.github.io/PathFinding.js/visual/
+ */
 public class PathFinderAStar {
-	// private ArrayList<Node> conexoes;
- //    private ArrayList<Node> visitados;
- //    private ArrayList<Node> desconhecidos;
- //    private int matrizDistancias[][];
- //    private int matrizCoordenadas[][];
- //    private Maze maze;
+    private final Color PREVIOUS_SPOTS  = Color.GRAY;
+    private final Color UNKNOWN_SPOT    = Color.CYAN;
+    private final Color CURRENT_SPOT    = Color.BLUE;
+    private final Color FINISH_PATH     = Color.GREEN;
 
- //    private int quantNos;
- //    private Node noInicial;
- //    private Node noFinal;
- //    private Node noCorrente;
+    public static final int G_WEIGHT = 1;
+
+    private ArrayList<Node> connections;
+    private ArrayList<Node> unknown;
+    private ArrayList<Node> known;
+
+    private Node begin;
+    private Node finish;
+    private Node current;
+
+
     private Maze maze;
 
+    private final int roadStones;
+    private final int xExitCoord;
+    private final int yExitCoord;
+
     public PathFinderAStar(Maze maze) {
- //        desconhecidos = new ArrayList<Node>();
- //        visitados = new ArrayList<Node>();
- //        conexoes = new ArrayList<Node>();
+        this.connections = new ArrayList<Node>();
+        this.unknown = new ArrayList<Node>();
+        this.known = new ArrayList<Node>();
         this.maze = maze;
+
+        this.xExitCoord = maze.getExit() % maze.X_LENGTH;
+        this.yExitCoord = maze.getExit() / maze.X_LENGTH;
+        this.roadStones = maze.getRoad().size();
     }
 
 
-    public void findPath() {
-    	try {
-	    	maze.setSpot(Color.BLUE, 0, 0);
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
+    public void findPath() throws InterruptedException {
+        unknown.addAll(
+            Arrays.stream(
+                        maze.getRoad()
+                            .toArray()
+                    ).map(i -> new Node((Integer) i))
+                     .collect(Collectors.toList())
+        );
+
+        try {
+            current = begin = findById(unknown, maze.getEntrance());
+            finish = findById(unknown, maze.getExit());
+            maze.setSpot(Color.BLUE, current.getId());
+            unknown.remove(current);
+        } catch (NullPointerException npe) {
+            throw new
+                InterruptedException("There is no entrance or exit.");
+        } catch (NoSuchFieldException nsfe) {
+            nsfe.printStackTrace();
+        }
+
+        maze.setMessage(
+            search()
+        );
+    }
+
+
+    private String search() {
+        Node aux = null;
+        String path = "";
+        int distance = 0;
+
+        try {
+            while(finish != current) {
+                Thread.sleep(App.delay);
+                acknowledge(current);
+                insertConnection(current.getId());
+
+                Thread.sleep(App.delay);
+                current = moveTo(current, nextNode());
+                if(current == null) return "There is no wat out.";
+            }
+        } catch (InterruptedException ignored) { }
+        
+        aux = finish;
+        distance = finish.getWeight();
+        while(aux != null){
+            try {
+                maze.setSpot(FINISH_PATH, aux.getId());
+            } catch (NoSuchFieldException ignored) {}
+
+            path = (aux.getId()+1)+" "+path;
+            aux = aux.getPrev();
+        }
+        return "Distance: " + distance;
+    }
+
+
+
+    private void acknowledge(Node node) {
+        known.add(node);
+        connections.remove(node);
+    }
+
+
+    private Node moveTo(Node prev, Node node) {
+        try {
+            maze.setSpot(PREVIOUS_SPOTS, prev.getId());
+            maze.setSpot(CURRENT_SPOT, node.getId());
+            unknown.remove(node);
+        } catch (NoSuchFieldException nsfe) {
+            nsfe.printStackTrace();
+        }
+
+        return node;
+    }
+
+
+    private Node findById(List<Node> list, Integer nodeId) {
+        if (nodeId == null) return null;
+        return
+            list.stream()
+                .filter(node -> node.getId() == nodeId)
+                .findAny()
+                .orElse(null);
+    }
+
+    private void insertConnection(int id) {
+        int newWeight = current.getWeight() + G_WEIGHT;
+        wire(maze.getUpPos(id), newWeight);
+        wire(maze.getDownPos(id), newWeight);
+        wire(maze.getLeftPos(id), newWeight);
+        wire(maze.getRightPos(id), newWeight);
+    }
+
+    private void wire(Integer id, int newWeight) {
+        if(id == null) return;
+
+        Node aux = findById(unknown, id);
+        if(aux != null){
+            if(!known.contains(aux)){
+                try {
+                    aux.setWeight(newWeight);
+                    aux.setPrev(current); 
+                    connections.add(aux);
+                    unknown.remove(aux);
+                    maze.setSpot(UNKNOWN_SPOT, aux.getId());
+                } catch (NoSuchFieldException nsfe) {
+                    nsfe.printStackTrace();
+                }
+            }
+        } else {
+            aux = findById(connections, id);
+            if(aux != null){
+                if(aux.getWeight() > newWeight){ 
+                    aux.setWeight(newWeight);
+                    aux.setPrev(current);
+                }
+            }
+        }
     }
     
- //    public void carregaDados(Array road, int idNoInicial, int idNoFinal) {
- //        quantNos = arqControl.getQuantidade();
- //        matrizDistancias = arqControl.getDistancias();
- //        matrizCoordenadas = arqControl.getCoordenadas();
-        
- //        for(int i = 0; i<quantNos;i++) desconhecidos.add(new Node(i));
-        
- //        noInicial = containsNo(desconhecidos, idNoInicial);
- //        noFinal = containsNo(desconhecidos, idNoFinal);
- //        desconhecidos.remove(idNoInicial);
- //        noCorrente = noInicial;
- //    }
-    
-    
- //    public String encontraCaminho() {
- //        Node aux = null;
- //        String caminho = "";
- //        int distancia = 0;
- //        while(noFinal != noCorrente){ 
- //            visitados.add(noCorrente);
- //            conexoes.remove(noCorrente);
- //            insereconexoes(noCorrente.getId());
- //            noCorrente = proximoNo();
- //            if(noCorrente == null) return "Nao Existe caminho.";
- //        }
-        
- //        aux = noFinal;
- //        distancia = noFinal.getPeso();
- //        while(aux != null){
- //            caminho = (aux.getId()+1)+" "+caminho;
- //            aux = aux.getAnt();
- //        }
- //        return "Caminho: "+ caminho + "  Distancia: "+ distancia;
- //    }
-    
+    private Node nextNode() {
+        int lighter, aux = 0;
+        Node next;
 
- //    private void insereconexoes(int id){
- //        Node aux;
-        
- //        for(int i =0 ; i<quantNos;i++){
- //            if(matrizDistancias[id][i] > 0){
- //                aux = containsNo(desconhecidos,i);
- //                int novoPeso = matrizDistancias[id][i]+noCorrente.getPeso(); 
- //                if(aux != null){
- //                    if(!visitados.contains(aux)){
- //                        aux.setPeso(novoPeso);
- //                        aux.setAnt(noCorrente); 
- //                        conexoes.add(aux);
- //                        desconhecidos.remove(aux);
- //                    }
- //                }
- //                else{
- //                    aux = containsNo(conexoes,i);
- //                    if(aux != null){
- //                        if(aux.getPeso() > novoPeso){ 
- //                            aux.setPeso(novoPeso);
- //                            aux.setAnt(noCorrente);
- //                        }
- //                    }
- //                }
- //            }
- //        }
- //    }
-    
+        if(connections.isEmpty())
+            return null;
 
- //    private Node proximoNo(){
- //        Node prox;
- //        int menor;
- //        int aux = 0;
- //        if(conexoes.isEmpty())return null;
-        
- //        prox = conexoes.get(0);
- //        int[] coord1 = matrizCoordenadas[prox.getId()]; 
- //        int[] coord2 = matrizCoordenadas[noFinal.getId()]; 
- //        menor = prox.getPeso() + heuristica(coord1[0],coord1[1],coord2[0],coord2[1]);
-        
- //        for(Node cur: conexoes){
- //            coord1 = matrizCoordenadas[cur.getId()]; 
- //            aux = heuristica(coord1[0],coord1[1],coord2[0],coord2[1]);
- //            if((cur.getPeso() + aux) < menor){//se atual melhor que menor
- //                menor = cur.getPeso() + aux;
- //                prox = cur;
- //            }
- //        }
- //        return prox;
- //    }
-    
- //    private int heuristica(int latitudeCidade1,int longitudeCidade1, int latitudeCidade2, int longitudeCidade2) {
- //        return Math.abs(latitudeCidade1-latitudeCidade2) + Math.abs(longitudeCidade1-longitudeCidade2);
- //    }
+        next = connections.get(0);
+        lighter = next.getWeight() + heuristic(next);
 
- //    private Node containsNo(ArrayList<Node> list, int id){
- //        for(Node cur: list){
- //            if(cur.getId() == id){
- //                return cur;
- //            }
- //        }
- //        return null;
- //    }
-    
- //    public static void main(String args[]) {
- //                AlgoritmoAStar algoritmo = new AlgoritmoAStar();
-	// 	algoritmo.carregaDados(args[0], (Integer.parseInt(args[1])-1), (Integer.parseInt(args[2])-1));
-	// 	System.out.println(algoritmo.encontraCaminho());
-	// }	
+        for(Node connection: connections) {
+            aux = heuristic(connection);
+            if(connection.getWeight() + aux < lighter) {
+                lighter = connection.getWeight() + aux;
+                next = connection;
+            }
+        }
 
+        return next;
+    }
+
+    private int heuristic(Node n) {
+        return
+            Math.abs((n.getId() % maze.X_LENGTH) - xExitCoord) +
+            Math.abs((n.getId() / maze.X_LENGTH) - yExitCoord);
+    }
 }

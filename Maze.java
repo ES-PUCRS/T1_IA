@@ -17,6 +17,7 @@ import java.io.File;
 import java.awt.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class Maze {
 	public static final Font font = new Font("Arial", Font.PLAIN, 20);
@@ -34,9 +35,10 @@ public class Maze {
     private int mazeSize;
     
     private ArrayList<Integer> road;
-    private int entrance;
-    private int exit;
+    private Integer entrance;
+    private Integer exit;
 
+    private String message;
 
 	private MazePanel panel;
 
@@ -72,8 +74,10 @@ public class Maze {
 		ArrayList<String[]> fileArray = new ArrayList<String[]>();
 		road = new ArrayList<Integer>();
 		File file = new File(filename);
+		entrance = exit = null;
 		FileReader fileReader;
 		BufferedReader reader;
+		message = "";
 		String line;
 
 		try {
@@ -146,12 +150,17 @@ public class Maze {
 		return cur + 1;
 	}
 
-	public int getExit() 	 { return exit; }
-	public int getEntrance() { return entrance; }
-	public Integer[] getRoad() 	 { return (Integer[]) road.toArray(); }
+	public Integer 	getExit() 	  { return exit; }
+	public Integer 	getEntrance() { return entrance; }
+	public List 	getRoad() 	  { return Arrays.asList(road.toArray()); }
 
 	public boolean isWall(int pos) { return blocks[pos].wall; }
 	public boolean isWall(int x, int y) { return blocks[(y * Y_LENGTH) + x].wall; }
+
+	public void setMessage(String message){
+		this.message = message;
+		panel.repaint();
+	}
 
 	public void setSpot(Color color, int x, int y) throws NoSuchFieldException {
 		try {
@@ -179,12 +188,12 @@ public class Maze {
 				}
 				
 
-				if(blocks[count].label != null) {
+				if (blocks[count].label != null) {
 					g.setFont(font);
 					g.drawString(blocks[count].label, (i * (CELL_WIDTH) + (CELL_WIDTH/3) + MARGIN), (j * (CELL_WIDTH) + (CELL_WIDTH) + MARGIN));
 				}
 
-				if(blocks[count].ball == true) {
+				if (blocks[count].ball == true) {
 					g.setColor(blocks[count].color);
 					g.fillOval(i * CELL_WIDTH + MARGIN + DOT_MARGIN, j * CELL_WIDTH
 						+ MARGIN + DOT_MARGIN, DOT_SIZE, DOT_SIZE);
@@ -204,6 +213,11 @@ public class Maze {
 						* CELL_WIDTH + MARGIN, (j + 1) * CELL_WIDTH + MARGIN);
 				}
 			}
+
+			if (!message.equals("")) {
+					g.drawString(message, (MARGIN), (Y_LENGTH * (CELL_WIDTH) + (CELL_WIDTH) + MARGIN));
+			}
+
 
 			for (int x = 0; x < X_LENGTH; x++) {
 				g.drawLine(MARGIN, MARGIN, (X_LENGTH * CELL_WIDTH + MARGIN), (0 + MARGIN));

@@ -145,9 +145,9 @@ public class PathFinderAStar {
     private void insertConnection(int id) {
         int newWeight = current.getWeight() + G_WEIGHT;
         wire(table.getUpPos(id), newWeight);
+        wire(table.getRightPos(id), newWeight);
         wire(table.getDownPos(id), newWeight);
         wire(table.getLeftPos(id), newWeight);
-        wire(table.getRightPos(id), newWeight);
     }
 
     private void wire(Integer id, int newWeight) {

@@ -6,5 +6,5 @@ javac *.java -d class
 
 IF ["%ERRORLEVEL%"] == ["0"] (
 	rem java -cp class; App %1
-	java -cp class; App "Maze_21x21"
+	java -cp class; App %1
 )

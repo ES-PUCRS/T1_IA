@@ -72,8 +72,8 @@ public class Table {
 
 	public Table(String filename) {
 		ArrayList<String[]> fileArray = new ArrayList<String[]>();
+		File file = new File("Tables/" + filename);
 		road = new ArrayList<Integer>();
-		File file = new File(filename);
 		entrance = exit = null;
 		FileReader fileReader;
 		BufferedReader reader;

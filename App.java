@@ -4,7 +4,7 @@ import java.io.*;
 
 public class App {
 
-	public static final int delay = 5; //ms
+	public static final int delay = 10; //ms
 	public static final int begin = 1500; //ms
 
 	public static void main(String[] args) throws IOException, InterruptedException {
@@ -17,14 +17,13 @@ public class App {
 			
 			PathFinderAStar agent = new PathFinderAStar(table);
 
+			frame.setSize(table.getXLength(), table.getYLength());
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.add(scrollPane, BorderLayout.CENTER);
-			frame.setVisible(true);
-			frame.setSize(table.getXLength(), table.getYLength());
 			frame.setLocationRelativeTo(null);
+			frame.setVisible(true);
 
 			/* Magic happens here ------------------------*/
-			/**/	//CALL IA 							/**/
 			/**/	try {								/**/
 			/**/		Thread.sleep(begin);			/**/
 			/**/		agent.findPath();				/**/
@@ -32,8 +31,7 @@ public class App {
 			/**/		e.printStackTrace();			/**/
 			/**/	}									/**/
 			/*--------------------------------------------*/
-
-		} catch(NumberFormatException exception) {
+		} catch(ArrayIndexOutOfBoundsException aioobe) {
 			System.out.println("The input must be the table file name.");
 		}
 	}

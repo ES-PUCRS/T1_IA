@@ -158,7 +158,9 @@ public class Table {
 		panel.repaint();
 	}
 
-	
+	public void setMessageWR(String message){
+		this.message = message;
+	}
 	public void setSpot(Color color, int x, int y) throws NoSuchFieldException {
 		try {
 			setSpot(color, ((y * Y_LENGTH) + x));
@@ -223,7 +225,11 @@ public class Table {
 			}
 
 			if (!message.equals("")) {
-					g.drawString(message, (MARGIN), (Y_LENGTH * (CELL_WIDTH) + (CELL_WIDTH) + MARGIN));
+				int lines = 0;
+				for(String msg : message.split("\n")) {
+					g.drawString(msg, (MARGIN), ((Y_LENGTH + lines) * (CELL_WIDTH) + (CELL_WIDTH) + MARGIN));
+					lines++;
+				}
 			}
 
 

@@ -55,10 +55,10 @@ public class PathFinderAStar {
     public void findPath() throws InterruptedException {
         unknown.addAll(
             Arrays.stream(
-                        table.getRoad()
-                            .toArray()
-                    ).map(i -> new Node((Integer) i))
-                     .collect(Collectors.toList())
+                table.getRoad()
+                    .toArray()
+            ).map(i -> new Node((Integer) i))
+             .collect(Collectors.toList())
         );
 
         try {

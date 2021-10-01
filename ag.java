@@ -13,6 +13,7 @@ class Main {
 				matriz[i][j] = rnd.nextInt(numeroPessoas);
 			}
 		}
+		
 		for(int g = 0; g < 10; g++){
 			System.out.println("Geração - " + g);
 			calculaAptidao(matriz, tarefas);
@@ -29,7 +30,11 @@ class Main {
 			}
 		  	matriz = intermediaria;
 		}
-	  } 
+	  }
+
+
+
+
 	public static int aptidao(int[] linha, int[] tarefas){
 		int soma0 = 0;
 		int soma1 = 0;
@@ -42,6 +47,7 @@ class Main {
 		}
 		return Math.abs(soma0-soma1);
 	}
+
 	public static void calculaAptidao(int[][] matriz, int[] tarefas){
 		int j = matriz[0].length - 1;
 		for(int i = 0; i < matriz.length; i++){
@@ -58,6 +64,7 @@ class Main {
 			System.out.println("-H: " + matriz[i][j] + " ");
 		}
 	}
+
 	public static int elitismo(int[][] matriz){
 		int i;
 		int j = matriz[0].length - 1;

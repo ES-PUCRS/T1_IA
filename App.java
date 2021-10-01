@@ -1,40 +1,76 @@
+import java.awt.event.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 
 public class App {
 
-	public static final int delay = 5; //ms
-	public static final int begin = 1500; //ms
+	public static final int delay 	= 5; 	//ms
+	public static final int begin 	= 1500; //ms
+	public static final int between = 3000; //ms
 
 	public static final boolean PDM = false;
+
+	private static JFrame frame;
 	public static void main(String[] args) throws IOException, InterruptedException {
+		String instructions = "exec.exe <maze file> <number of generations> <population size> <mutation rate>";
+		Table table;
 		try {
-			Table table = new Table(args[0]);
-
-			JFrame frame = new JFrame("Maze");
-			TablePanel panel = new TablePanel(table);
-			JScrollPane scrollPane = new JScrollPane(panel);
-			
-			PathFinderAStar agent = new PathFinderAStar(table);
-
-			frame.setSize(table.getXLength(), table.getYLength());
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.add(scrollPane, BorderLayout.CENTER);
-			frame.setLocationRelativeTo(null);
-			frame.setVisible(true);
-
-			/* Magic happens here ------------------------*/
-			/**/	try {								/**/
-			/**/		Thread.sleep(begin);			/**/
-			/**/		agent.findPath();				/**/
-			/**/	} catch (Exception e) {				/**/
-			/**/		e.printStackTrace();			/**/
-			/**/	}									/**/
-			/*--------------------------------------------*/
+			//table = init(args[0], "Path finder - A*");
 		} catch (ArrayIndexOutOfBoundsException aioobe) {
-			System.out.println("The input must be the table file name.");
+			System.out.println(instructions);
 		}
+		/* Magic happens here ------------------------*/
+	
+		// try {
+		// 	Thread.sleep(begin);
+		// 	new PathFinderAStar(table)
+		// 			.findPath();
+								
+		// 	Thread.sleep(between);
+		// 	close();
+		// } catch (Exception e) {
+		// 	e.printStackTrace();
+		// }
+
+		try {
+			instructions = args[3];
+			table = init(args[0], "Genetic Algorith");
+			Thread.sleep(begin);
+			new GeneticAlgorith(
+				table,
+		 		Integer.parseInt(args[1]),
+		 		Integer.parseInt(args[2]),
+		 		Integer.parseInt(args[3])
+		 	);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			System.out.println(instructions);
+		}
+	}
+
+	private static Table init(String tableFile, String windowName) {
+		Table table = new Table(tableFile);
+		frame = new JFrame(windowName);
+		TablePanel panel = new TablePanel(table);
+		JScrollPane scrollPane = new JScrollPane(panel);
+
+		frame.setSize(table.getXLength(), table.getYLength());
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.add(scrollPane, BorderLayout.CENTER);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+
+		return table;
+	}
+
+	private static void close() {
+		frame.dispatchEvent(
+			new WindowEvent(
+				frame,
+				WindowEvent.WINDOW_CLOSING
+			)
+		);
 	}
 }
 

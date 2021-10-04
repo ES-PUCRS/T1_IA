@@ -1,36 +1,38 @@
 import java.util.Random;
 
 class Main {  
-  public static void lkj(String args[]) { 
+  public static void lkj(String args[]) {
 	  	int[] tarefas = {10,5,5,3,7,2,3,5,8,2,4,4,2,10,5,5,3,7,2,3,5,8,2,4,4,2};
 		Random rnd = new Random();
 	  	int numeroLinhas = 5;
 	  	int numeroPessoas = 2;
 	  	int[][] matriz = new int[numeroLinhas][tarefas.length + 1];
 		int[][] intermediaria = new int[numeroLinhas][tarefas.length + 1];
-	  	for(int i = 0; i < numeroLinhas; i++){
-			for(int j = 0; j < tarefas.length - 1; j++){
+	  	for(int i = 0; i < numeroLinhas; i++) {
+			for(int j = 0; j < tarefas.length - 1; j++) {
 				matriz[i][j] = rnd.nextInt(numeroPessoas);
 			}
 		}
 		
-		for(int g = 0; g < 10; g++){
+		for(int g = 0; g < 10; g++) {
 			System.out.println("Geração - " + g);
 			calculaAptidao(matriz, tarefas);
 		  
 		    printa(matriz);
-		  	int elite = elitismo(matriz);
-		  	System.out.println("Elitismo- " + elite);
-		  	for(int j = 0; j < matriz[0].length; j++){
-				intermediaria[0][j] = matriz[elite][j];
-			}
+
+			  	int elite = elitismo(matriz);
+			  	System.out.println("Elitismo- " + elite);
+			  	for(int j = 0; j < matriz[0].length; j++){
+					intermediaria[0][j] = matriz[elite][j];
+				}
+
 		  	cruzamento(intermediaria, matriz);
 			if(g%5 == 0){
 				mutacao(intermediaria);
 			}
 		  	matriz = intermediaria;
 		}
-	  }
+	}
 
 
 
@@ -89,6 +91,7 @@ class Main {
 		}
 		return pai2;
 	}
+	
 	public static void cruzamento(int[][] intermediaria, int[][] matriz){
 		
 		for(int i = 1; i < matriz.length; i+=2){

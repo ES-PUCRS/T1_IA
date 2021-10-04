@@ -14,26 +14,27 @@ public class App {
 	private static JFrame frame;
 	public static void main(String[] args) throws IOException, InterruptedException {
 		String instructions = "exec.exe <maze file> <number of generations> <population size> <mutation rate>";
-		Table table;
-		try {
-			//table = init(args[0], "Path finder - A*");
-		} catch (ArrayIndexOutOfBoundsException aioobe) {
-			System.out.println(instructions);
-		}
-		/* Magic happens here ------------------------*/
-	
-		// try {
-		// 	Thread.sleep(begin);
-		// 	new PathFinderAStar(table)
-		// 			.findPath();
-								
-		// 	Thread.sleep(between);
-		// 	close();
-		// } catch (Exception e) {
-		// 	e.printStackTrace();
-		// }
+		Table table = null;
+			
+		/*  Magic happens here ------------------------ */
+		if(false)
+			try {
+				table = init(args[0], "Path finder - A*");
+				Thread.sleep(begin);
+				new PathFinderAStar(table)
+						.findPath();
+									
+				Thread.sleep(between);
+				close();
+			} catch (ArrayIndexOutOfBoundsException aioobe) {
+				System.out.println(instructions);
+				System.exit(1);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 		try {
+			//Throws exception if needed
 			instructions = args[3];
 			table = init(args[0], "Genetic Algorith");
 			Thread.sleep(begin);
@@ -43,16 +44,18 @@ public class App {
 		 		Integer.parseInt(args[2]),
 		 		Integer.parseInt(args[3])
 		 	);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			System.out.println(instructions);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			if(args.length != 1) {
+				System.out.println(e.getMessage());
+				System.out.println(instructions);
+			}
 		}
 	}
 
 	private static Table init(String tableFile, String windowName) {
-		Table table = new Table(tableFile);
+		Table table = Table.newInstance(tableFile);
 		frame = new JFrame(windowName);
-		TablePanel panel = new TablePanel(table);
+		TablePanel panel = new TablePanel();
 		JScrollPane scrollPane = new JScrollPane(panel);
 
 		frame.setSize(table.getXLength(), table.getYLength());
@@ -77,9 +80,9 @@ public class App {
 class TablePanel extends JPanel {
 	private Table table;
 
-	public TablePanel(Table table) {
+	public TablePanel() {
+		this.table = Table.instance(new String());
 		table.setPanel(this);
-		this.table = table;
 	}
 
 	public void paintComponent(Graphics page) {

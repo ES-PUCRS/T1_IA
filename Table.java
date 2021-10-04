@@ -5,7 +5,9 @@
  *	moodle.pucrs.br/pluginfile.php/3849965/mod_resource/content/1/AG.java
  */
 
-import java.lang.NoSuchFieldException;
+// import java.lang.NoSuchFieldException;
+
+import java.util.stream.Collectors;
 
 import java.io.FileNotFoundException;
 import java.io.BufferedReader;
@@ -22,6 +24,7 @@ import javax.imageio.ImageIO;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class Table {
 	public static final Font font = new Font("Arial", Font.PLAIN, 20);
 
@@ -34,6 +37,7 @@ public class Table {
 	public final int Y_LENGTH; // buffer between window edge and table
 	
 	private Block[] blocks; // array containing all the blocks in the table	
+	private Block[] blank;	
 
     private int tableSize;
     
@@ -46,26 +50,26 @@ public class Table {
 	private BufferedImage img;
 	private TablePanel panel;
 
-	public class Block {
-		final boolean wall;
-		String label;
-
-		boolean ball;
-		Color color;
-		
-		public Block(boolean wall) {
-			this.wall = wall;
-			label = null;
-			color = null;
-			ball = false;
-		}
-	}
-	
 	public void setPanel(TablePanel panel) {
 		this.panel = panel;
 	}
 
-	public Table(String filename) {
+	private static Table instance;
+
+	public static Table instance(String filename) {
+		if(instance == null)
+			if(filename.isEmpty())
+				instance = new Table(filename);
+			else
+				throw new InstantiationError("Instance needs a filename");
+
+		return instance;
+	}
+	public static Table newInstance(String filename) {
+		return instance = new Table(filename);
+	}
+
+	private Table(String filename) {
 		ArrayList<String[]> fileArray = new ArrayList<String[]>();
 		File file = new File("Tables/" + filename);
 		road = new ArrayList<Integer>();
@@ -108,26 +112,43 @@ public class Table {
 		}
 
 
-		blocks = new Block[tableSize];
+		blank = new Block[tableSize];
 		for (int i = 0; i < tableSize; i++) {
 			if(matriz[i].equals("1")) {
-				blocks[i] = new Block(true);
+				blank[i] = new Block(true);
 			} else {
-				blocks[i] = new Block(false);
+				blank[i] = new Block(false);
 				road.add(i);
 
 				if(matriz[i].equals("E")) {
-					blocks[i].label = matriz[i];
+					blank[i].label = matriz[i];
 					entrance = i;
 				}
 				if(matriz[i].equals("S")) {
-					blocks[i].label = matriz[i];
+					blank[i].label = matriz[i];
 					exit = i;
 				}
 			}
 		}
+		blocks = copyArray(blank);
 	}
 
+
+	private Block[] copyArray(Block[] blocks) {
+		return Arrays
+					.stream(blocks)
+					.map(Block::copyOf)
+             		.toArray(Block[]::new);
+	}
+
+	public Block[] getBlocks() {
+		return copyArray(blocks);
+	}
+
+	public void clear() {
+		blocks = copyArray(blank);
+		panel.repaint();
+	}
 
 	public Integer getUpPos(int cur) {
 		if( (cur + X_LENGTH) > tableSize ) return null;

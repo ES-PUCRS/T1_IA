@@ -25,7 +25,6 @@ public class App {
 						.findPath();
 									
 				Thread.sleep(between);
-				close();
 			} catch (ArrayIndexOutOfBoundsException aioobe) {
 				System.out.println(instructions);
 				System.exit(1);
@@ -33,23 +32,26 @@ public class App {
 				e.printStackTrace();
 			}
 
-		try {
-			//Throws exception if needed
-			instructions = args[3];
-			table = init(args[0], "Genetic Algorith");
-			Thread.sleep(begin);
-			new GeneticAlgorith(
-				table,
-		 		Integer.parseInt(args[1]),
-		 		Integer.parseInt(args[2]),
-		 		Integer.parseInt(args[3])
-		 	);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			if(args.length != 1) {
-				System.out.println(e.getMessage());
-				System.out.println(instructions);
+		if(true)
+			try {
+				close();
+				//Throws exception if needed
+				instructions = args[3];
+				table = init(args[0], "Genetic Algorith");
+				Thread.sleep(begin);
+				new GeneticAlgorith(
+					table,
+			 		Integer.parseInt(args[1]),
+			 		Integer.parseInt(args[2]),
+			 		Integer.parseInt(args[3])
+			 	);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				if(args.length != 1) {
+					System.out.println(e.getMessage());
+					System.out.println(instructions);
+					e.printStackTrace();
+				}
 			}
-		}
 	}
 
 	private static Table init(String tableFile, String windowName) {
@@ -68,12 +70,14 @@ public class App {
 	}
 
 	private static void close() {
-		frame.dispatchEvent(
-			new WindowEvent(
-				frame,
-				WindowEvent.WINDOW_CLOSING
-			)
-		);
+		try {
+			frame.dispatchEvent(
+				new WindowEvent(
+					frame,
+					WindowEvent.WINDOW_CLOSING
+				)
+			);
+		} catch (Exception ignore) {}
 	}
 }
 

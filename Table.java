@@ -141,8 +141,16 @@ public class Table {
              		.toArray(Block[]::new);
 	}
 
+	public Block[] setBlocks(Block[] plain) {
+		return blocks = plain;
+	}
+
 	public Block[] getBlocks() {
 		return copyArray(blocks);
+	}
+	
+	public Block[] getBlank() {
+		return copyArray(blank);
 	}
 
 	public void clear() {
@@ -150,21 +158,60 @@ public class Table {
 		panel.repaint();
 	}
 
+	private Integer move(Color color, int pos) {
+		if(isWall(pos) == true) {
+			try {
+				setWallSpot(Color.RED, pos);
+			} catch(Exception e) { e.printStackTrace(); }
+			return null;
+		}
+
+		try{
+			setSpot(color, pos);
+		} catch(Exception e) { e.printStackTrace(); }
+		return pos;
+	}
+	public Integer moveUpPos(Color color, int cur) {
+		int pos = cur - X_LENGTH;
+		if( pos < 0 ) return null;
+		return move(color, pos);
+	}
+	public Integer moveDownPos(Color color, int cur) {
+		int pos = cur + X_LENGTH;
+		if( pos > tableSize ) return null;
+		return move(color, pos);
+	}
+	public Integer moveLeftPos(Color color, int cur) {
+		int pos = cur - 1;
+		if( (pos/X_LENGTH) != (cur/X_LENGTH) || pos < 0 ) return null;
+		return move(color, pos);
+	}
+	public Integer moveRightPos(Color color, int cur) {
+		int pos = cur + 1;
+		if( (pos/X_LENGTH) != (cur/X_LENGTH) || pos > tableSize ) return null;
+		return move(color, pos);
+	}
+
+
 	public Integer getUpPos(int cur) {
-		if( (cur + X_LENGTH) > tableSize ) return null;
-		return cur + X_LENGTH;
+		int pos = cur - X_LENGTH;
+		if( pos < 0 ) return null;
+		return pos;
 	}
 	public Integer getDownPos(int cur)  {
-		if( (cur - X_LENGTH) < 0 ) return null;
-		return cur - X_LENGTH;
+		int pos = cur + X_LENGTH; 
+		if( pos > tableSize ) return null;
+		return pos;
 	}
 	public Integer getLeftPos(int cur)  {
-		if( (cur - 1)/X_LENGTH != (cur/X_LENGTH) ) return null;
+		int pos = cur - 1;
+		if( (pos/X_LENGTH) != (cur/X_LENGTH) ) return null;
 		return cur - 1;
 	}
 	public Integer getRightPos(int cur) {
-		if( (cur + 1)/X_LENGTH != (cur/X_LENGTH) ) return null;
-		return cur + 1;
+		int pos = cur + 1;
+		if( (pos/X_LENGTH) != (cur/X_LENGTH) ) return null;
+		return pos;
 	}
 
 	public Integer 	getExit() 	  { return exit; }
@@ -182,6 +229,7 @@ public class Table {
 	public void setMessageWR(String message){
 		this.message = message;
 	}
+
 	public void setSpot(Color color, int x, int y) throws NoSuchFieldException {
 		try {
 			setSpot(color, ((y * Y_LENGTH) + x));
@@ -192,6 +240,21 @@ public class Table {
 	public void setSpot(Color color, int pos) throws NoSuchFieldException {
 		if(blocks[pos].wall == true)
 			throw new NoSuchFieldException("You are trying to move inside a wall.\nPOS:" + pos);
+		blocks[pos].ball = true;
+		blocks[pos].color = color;
+		panel.repaint();
+	}
+
+	public void setWallSpot(Color color, int x, int y) throws NoSuchFieldException {
+		try {
+			setWallSpot(color, ((y * Y_LENGTH) + x));
+		} catch (NoSuchFieldException e) {
+			throw new NoSuchFieldException(e.getMessage() + " X:" + x + " Y:" + y);
+		}
+	}
+	public void setWallSpot(Color color, int pos) throws NoSuchFieldException {
+		if(blocks[pos].wall == false)
+			throw new NoSuchFieldException("You are trying to move a non wall.\nPOS:" + pos);
 		blocks[pos].ball = true;
 		blocks[pos].color = color;
 		panel.repaint();

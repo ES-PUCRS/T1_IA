@@ -1,26 +1,37 @@
 import java.util.Random;
+import java.awt.Color;
 
 class GeneticAlgorith {
-    public static final int NORTH 	= 0;
-    public static final int SOUTH 	= 2;
-    public static final int EAST 	= 1;
-    public static final int WEST    = 3;
+
+    /**/public static final int GENES   = 4;
+	/*-Possible genes--------------------------*/
+    /**/ public static final int NORTH 	= 0; /**/
+    /**/ public static final int SOUTH 	= 2; /**/
+    /**/ public static final int EAST 	= 1; /**/
+    /**/ public static final int WEST   = 3; /**/
+    /*-----------------------------------------*/
+
 
 	private int mutationRate;
 	private int generation;
 
-	private Table[][] population;
-	private Table[][] newGeneration;
+	private int entrance;
+	private int exit;
 
+	private int[][] population;
+	private int[][] newGeneration;
 
+	private static Table table;
+	private static Random rnd;
 	private int roadStones;
-	private Table table;
-	private Random rnd;
 
 	public GeneticAlgorith(Table table, int generations, int populationSize, int mutation) {
 		this.roadStones = table.getRoad().size();
 		this.table = table;
 		rnd = new Random();
+
+		entrance = table.getEntrance();
+		exit = table.getExit();
 		
 		mutationRate = mutation;
 		this.generation = generations;
@@ -28,19 +39,21 @@ class GeneticAlgorith {
 		population 	  = new int[populationSize][roadStones + 1];
 		newGeneration = new int[populationSize][roadStones + 1];
 
-		for(int i = 0; i < population; i++)
-			for(int j = 0; j < roadStones-1; j++)
-				chromosomes[i][j] = rnd.nextInt(4);
+		/*
+		 *	Generate a random population
+		 */
+		for(int i = 0; i < population.length; i++)
+			for(int j = 0; j < roadStones - 1; j++)
+				population[i][j] = rnd.nextInt(GENES);
 
-		for(int g = 0; g <= generation; g++) {
-			table.setMessage( message(g, 0) );
-			fitness(population);
-
-			sout(population);
-
+		/*
+		 *	Run over the generations
+		 */
+		for(int g = 1; g <= generation; g++) {
+			fitness(population, g, entrance, exit);
 			transfer(population, eletism(population), newGeneration, 0);
 			crossover(newGeneration, population);
-
+			
 			if(rnd.nextInt(100) < mutationRate)
 				mutation(newGeneration);
 
@@ -48,14 +61,15 @@ class GeneticAlgorith {
 		}
 	}
 
-
-
+	/*
+	 *	Used to get the most scored chromosome
+	 */
 	public static int eletism(int[][] population) {
 		int score = population[0].length - 1;
 		int smallest = population[0][score];
 		int lowest = 0;
 
-		for(int i = 0; i < population.length; i++) {
+		for(int i = 0; i < population.length - 1; i++) {
 			if(smallest > population[i][score]) {
 				smallest = population[i][score];
 				lowest = i;
@@ -65,28 +79,130 @@ class GeneticAlgorith {
 		return lowest;
 	}
 
+	/*
+	 *	Use to randomly change a gene on a chromosome
+	 */
 	public static void mutation(int[][] population) {
 		int line = rnd.nextInt(population.length);
-		int column = rnd.nextInt(population[0].length - 1);
-		
-		if(population[line][column] == 0)
-			population[line][column] = 1;
-		else
-			population[line][column] = 0;
+		int column = rnd.nextInt(population[0].length - 2);
+		int gene = rnd.nextInt(GENES);
+
+		if(population[line][column] == gene)
+			gene = rnd.nextInt(GENES);
+
+		population[line][column] = gene;
 	}
 
-	private static void fitness(int[][] chromosomes) { }
-	private static int fitness(int a) { return 0; }
+	/*
+	 *	Encapsulate the walk through the genes of the population
+	 */
+	private static void fitness(int[][] population, int generation, int entrance, int exit) {
+		int score = population[0].length - 1;
+		System.out.println(generation);
+		for(int i = 0; i < population.length; i++)
+			population[i][score] = fitness(population[i], generation, entrance, exit);
+	}
 
-	private static transfer(int[][] from, int pos, int[][] to, int ps) {
+	/*
+	 *	Logic to calculate how fitness a chromosome (score)
+	 */
+	private static int fitness(int[] chromosome, int generation, int entrance, int exit) {
+		String path = "";
+		int lastStep, gene, fitness;
+		Integer pos = entrance;
+		Color color = Color.BLUE;
+		table.clear();
+
+		lastStep = gene = 0;
+		try {
+				// Thread.sleep(500);
+			for(; gene < chromosome.length - 1 && pos != null; gene++) {
+				lastStep = pos;
+
+				switch(chromosome[gene]) {
+					case NORTH:
+						path += " U";
+						pos = table.moveUpPos(color, pos);
+						break;
+
+					case SOUTH:
+						path += " D";
+						pos = table.moveDownPos(color, pos);
+						break;
+
+					case EAST:
+						path += " R";
+						pos = table.moveRightPos(color, pos);
+						break;
+
+					case WEST:
+						path += " L";
+						pos = table.moveLeftPos(color, pos);
+						break;
+				}
+			}
+
+		} catch(Exception e) {}
+		fitness = manhattanDistance(lastStep);
+
+		System.out.println(completePath(chromosome, path, gene, fitness));
+		// System.out.println(path);
+		table.setMessage( message(generation, fitness) );
+		return fitness;
+	}
+
+	private static String completePath(int[] chromosome, String path, int gene, int fitness) {
+		if(false) {
+			int g = gene;
+			if(g < chromosome.length - 1)
+				path += " |X|";
+			for (;g < chromosome.length - 1; g++) {
+				switch(chromosome[g]) {
+					case NORTH:
+						path += " U";
+						break;
+					case SOUTH:
+						path += " D";
+						break;
+					case EAST:
+						path += " R";
+						break;
+					case WEST:
+						path += " L";
+						break;
+				}
+			}
+		}
+		return path + "\t F: " + fitness;
+	}
+
+	/*
+	 *	The sum of the absolute differences between the two vectors
+	 *	Description from: https://machinelearningmastery.com
+	 */
+    private static int manhattanDistance(int position) {
+    	int xExitCoord = table.getExit() % table.X_LENGTH;
+    	int yExitCoord = table.getExit() / table.X_LENGTH;
+        return
+            Math.abs((position % table.X_LENGTH) - xExitCoord) +
+            Math.abs((position / table.X_LENGTH) - yExitCoord);
+    }
+
+	/*
+	 *	Transfer a gene of a population to the new generation
+	 */
+	private static void transfer(int[][] from, int pos, int[][] to, int ps) {
 		for(int i = 0; i < from[0].length; i++) {
 			to[ps][i] = from[pos][i];
 		}
 	}
 
+	/*
+	 *	Randomly get two possible fathers and chose the best
+	 */
 	public static int tournament(int[][] population) {
-		int father 	= rnd.nextInt(population.length);
-		int dad 	= rnd.nextInt(population.length);
+		int father 	= rnd.nextInt(population.length-2);
+		int dad 	= rnd.nextInt(population.length-2);
 		int score 	= population[0].length - 1;
 		if(population[father][score] < population[dad][score]){
 			return father;
@@ -94,26 +210,35 @@ class GeneticAlgorith {
 		return dad;
 	}
 
+	/*
+	 *	Cross all population to the next level of generation
+	 */
 	private static void crossover(int[][] newGeneration, int[][] population) {
 		for(int i = 1; i < population.length; i+=2) {
-			int c1 = tournament(population);
-			int c2 = tournament(population);
+
+			int chromosome1 = tournament(population);
+			int chromosome2 = tournament(population);
 
 			for(int j=0; j < population[i].length - 1; j++) {
-				if(j < population[i].length / 2){
-					newGeneration[i][j] = population[c1][j];
-					newGeneration[i+1][j] = population[c2][j];
+				if(j < population[i].length / 2) {
+					newGeneration[i][j] = population[chromosome1][j];
+					if((i+1) < population.length)
+						newGeneration[i+1][j] = population[chromosome2][j];
 				}else{
-					newGeneration[i][j] = population[c2][j];
-					newGeneration[i+1][j] = population[c1][j];
+					newGeneration[i][j] = population[chromosome2][j];
+					if((i+1) < population.length)
+						newGeneration[i+1][j] = population[chromosome1][j];
 				}
 			}
 		}
 	}
 
-	private static String message(int g, int bf) {
+	/*
+	 *	Just to not let this concatenation on the middle code
+	 */
+	private static String message(int g, int f) {
 		return
 			"Generation: " + g + "\n"+
-			"Best fitness: " + bf;
+			"Fitness: " + f;
 	}
 }

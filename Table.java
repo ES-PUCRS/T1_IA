@@ -130,6 +130,7 @@ public class Table {
 				}
 			}
 		}
+		// System.out.println(blocks[13].wall);
 		blocks = copyArray(blank);
 	}
 

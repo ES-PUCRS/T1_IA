@@ -137,7 +137,7 @@ public class Logger {
 			   .append(" hours, ")
 			   .append(duration.toMinutes()%60)
 			   .append(" Minutes, ")
-			   .append(duration.toSeconds()%60)
+			   .append(duration.getSeconds()%60)
 			   .append(" Seconds, ")
 			   .append(duration.toMillis()%1000)
 			   .append(" Milli.\n")

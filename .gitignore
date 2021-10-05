@@ -1,6 +1,8 @@
 # Compiled class file
 *.class
 /class
+*.txt
+/SavedLogs
 aestrela/*
 # Log file
 *.log

@@ -1,3 +1,4 @@
+import java.util.Scanner;
 import java.util.Random;
 import java.awt.Color;
 
@@ -15,8 +16,10 @@ class GeneticAlgorith {
 	private int mutationRate;
 	private int generation;
 
-	private int entrance;
-	private int exit;
+	private static Logger logger;
+
+	private static int entrance;
+	private static int exit;
 
 	private int[][] population;
 	private int[][] newGeneration;
@@ -29,6 +32,12 @@ class GeneticAlgorith {
 		this.roadStones = table.getRoad().size();
 		this.table = table;
 		rnd = new Random();
+
+		if(!App.DISPLAY) {
+			logger = Logger.getInstance();
+			logger.initFile("result");
+			logger.publishLog("Generations: " + generation + "\nPopulation: " + populationSize + "\nMutation rate: " +mutation+"\n");
+		}
 
 		entrance = table.getEntrance();
 		exit = table.getExit();
@@ -52,7 +61,7 @@ class GeneticAlgorith {
 		/*
 		 *	Run over the generations
 		 */
-		for(int g = 1; g <= generation; g++) {
+		for(int g = 1; g <= generation && quit; g++) {
 			fitness(population, g, entrance, exit);
 			transfer(population, eletism(population), newGeneration, 0);
 			crossover(newGeneration, population);
@@ -61,6 +70,10 @@ class GeneticAlgorith {
 				mutation(newGeneration, mutationRate);
 
 			population = newGeneration;
+		}
+
+		if(!App.DISPLAY) {
+			logger.close();
 		}
 	}
 
@@ -107,23 +120,26 @@ class GeneticAlgorith {
 	 */
 	private static void fitness(int[][] population, int generation, int entrance, int exit) {
 		int score = population[0].length - 1;
-		for(int i = 0; i < population.length; i++)
+		for(int i = 0; i < population.length && quit; i++)
 			population[i][score] = fitness(population[i], generation, entrance, exit);
 	}
 
 	/*
 	 *	Logic to calculate how fitness a chromosome (score)
 	 */
+	private static Integer hit = Integer.MAX_VALUE;
+	private static Integer fit = Integer.MAX_VALUE;
+	private static boolean hited = false;
 	private static int fitness(int[] chromosome, int generation, int entrance, int exit) {
 		int lastStep, fitness, gene;
 		Color color = Color.BLUE;
 		Integer pos = entrance;
 		String path = "";
-		
-		table.clear();
+		hited = false;
+		hit = 0;
 
 		fitness = lastStep = gene = 0;
-		for(; gene < chromosome.length - 1 && pos != null; gene++) {
+		for(; gene < chromosome.length - 1 && pos != null && quit; gene++) {
 			lastStep = pos;
 
 			switch(chromosome[gene]) {
@@ -148,11 +164,17 @@ class GeneticAlgorith {
 					break;
 			}
 
-			fitness += fitness(pos);
+			fitness += fitness(fitness, pos, gene, generation);
 		}
 
 		// System.out.println(completePath(chromosome, path, gene, fitness));
-		table.setMessage( message(generation, fitness) );
+
+		if(App.DISPLAY) {
+			table.clear();
+			table.setMessage( message(generation, fitness) );
+		} else if (hited)
+			logger.publishLog(chromosome, generation, gene, hit);
+		
 		return fitness;
 	}
 
@@ -162,42 +184,75 @@ class GeneticAlgorith {
 	 *		- Reaches some wall: 2 points
 	 *		- Falls from table: 10 points
 	 */
-	private static Integer fitness(Integer pos) {
+	private static boolean quit = true;
+	private static Integer fitness(int fitness, Integer pos, int gene, int generation) {
 		if(pos == null) {
-			return table.getTableSize() * 10;
+			return table.getTableSize() * 20;
 		} else {
+			int fits = manhattan(pos);
+			if(pos == exit) {
+				if(hit < fit)
+					try {
+						hited = true;
+						fit = hit;
+						if(App.DISPLAY){
+							table.setMessage(message(gene, generation, fitness, hit));
+		        			Thread.sleep(App.delay_f);
+						}
+	        		} catch(Exception e) { e.printStackTrace(); }
+					if(fit == 0) {
+						System.out.println("REACH SOLUTION: " + gene);
+						if(App.LEFT_WHEN_FIND_FIRST)
+							quit = false;
+	        		}
+        		return 0;
+			} 
+
 			if(table.isWall(pos)) {
-				return 10;
-			} else{
-				return 1;
+				hit++;
+				fits += 12 + hit;
+				return fits;
 			}
+
+			if(table.visited(pos))
+				return fits + 5;
+			
+			return fits + 1;	
 		}
 	}
 
-	private static String completePath(int[] chromosome, String path, int gene, int fitness) {
-		if(false) {
-			int g = gene;
-			if(g < chromosome.length - 1)
-				path += " |X|";
-			for (;g < chromosome.length - 1; g++) {
-				switch(chromosome[g]) {
-					case NORTH:
-						path += " U";
-						break;
-					case SOUTH:
-						path += " D";
-						break;
-					case EAST:
-						path += " R";
-						break;
-					case WEST:
-						path += " L";
-						break;
-				}
-			}
-		}
-		return path + "\t F: " + fitness;
-	}
+	public static int manhattan(int pos) {
+		int xExitCoord = table.getExit() % table.X_LENGTH;
+        int yExitCoord = table.getExit() / table.X_LENGTH;
+        return
+            Math.abs((pos % table.X_LENGTH) - xExitCoord) +
+            Math.abs((pos / table.X_LENGTH) - yExitCoord);
+    }
+
+	// private static String completePath(int[] chromosome, String path, int gene, int fitness) {
+	// 	if(false) {
+	// 		int g = gene;
+	// 		if(g < chromosome.length - 1)
+	// 			path += " |X|";
+	// 		for (;g < chromosome.length - 1; g++) {
+	// 			switch(chromosome[g]) {
+	// 				case NORTH:
+	// 					path += " U";
+	// 					break;
+	// 				case SOUTH:
+	// 					path += " D";
+	// 					break;
+	// 				case EAST:
+	// 					path += " R";
+	// 					break;
+	// 				case WEST:
+	// 					path += " L";
+	// 					break;
+	// 			}
+	// 		}
+	// 	}
+	// 	return path + "\t F: " + fitness;
+	// }
 
 
 	/*
@@ -248,6 +303,12 @@ class GeneticAlgorith {
 	/*
 	 *	Just to not let this concatenation on the middle code
 	 */
+	private static String message(int gene, int generation, int f, int hit) {
+		return
+			"Reach exit: " + gene + " genes" +
+			"\nGeneration: " + generation +
+			"\nFitness: " + ((double) f/100) + "\nHIT "+hit;
+	}
 	private static String message(int g, int f) {
 		return
 			"Generation: " + g + "\n"+

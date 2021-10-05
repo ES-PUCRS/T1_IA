@@ -158,17 +158,15 @@ public class Table {
 	}
 
 	private Integer move(Color color, int pos) {
-		try { Thread.sleep(App.delay); }
-		catch(Exception ignore){}		
 		if(isWall(pos) == true) {
 			try {
-				setWallSpot(Color.RED, pos);
+				setWallSpotWR(Color.RED, pos);
 			} catch(Exception e) { e.printStackTrace(); }
 			return pos;
 		}
 
 		try{
-			setSpot(color, pos);
+			setSpotWR(color, pos);
 		} catch(Exception e) { e.printStackTrace(); }
 		return pos;
 	}
@@ -221,22 +219,17 @@ public class Table {
 	public List 	getRoad() 	  { return Arrays.asList(road.toArray()); }
 
 	public boolean visited(int pos){
-		for(Block b : blocks) {
-			System.out.print(" "+b.visited);
-		}
-		System.out.println();
-
 		return blocks[pos].visited;
 	}
 	public boolean isWall(int pos) { return blocks[pos].wall; }
 	public boolean isWall(int x, int y) { return blocks[(y * Y_LENGTH) + x].wall; }
 
-	public void setMessage(String message){
+	public void setMessage(String message) {
 		this.message = message;
 		panel.repaint();
 	}
 
-	public void setMessageWR(String message){
+	public void setMessageWR(String message) {
 		this.message = message;
 	}
 
@@ -248,12 +241,15 @@ public class Table {
 		}
 	}
 	public void setSpot(Color color, int pos) throws NoSuchFieldException {
+		setSpotWR(color, pos);
+		panel.repaint();
+	}
+	public void setSpotWR(Color color, int pos) throws NoSuchFieldException {
 		if(blocks[pos].wall == true)
 			throw new NoSuchFieldException("You are trying to move inside a wall.\nPOS:" + pos);
 		blocks[pos].ball = true;
 		blocks[pos].color = color;
 		blocks[pos].visited = true;
-		panel.repaint();
 	}
 
 	public void setWallSpot(Color color, int x, int y) throws NoSuchFieldException {
@@ -264,12 +260,15 @@ public class Table {
 		}
 	}
 	public void setWallSpot(Color color, int pos) throws NoSuchFieldException {
+		setWallSpotWR(color, pos);
+		panel.repaint();
+	}
+	public void setWallSpotWR(Color color, int pos) throws NoSuchFieldException {
 		if(blocks[pos].wall == false)
 			throw new NoSuchFieldException("You are trying to move a non wall.\nPOS:" + pos);
 		blocks[pos].ball = true;
 		blocks[pos].color = color;
 		blocks[pos].visited = true;
-		panel.repaint();
 	}
 
 	public void draw(Graphics g) {
@@ -343,10 +342,10 @@ public class Table {
 	}
 
 	public int getYLength() {
-		return (((Y_LENGTH+3) * CELL_WIDTH) + (MARGIN * 2));
+		return (((Y_LENGTH+3) * CELL_WIDTH) + (MARGIN * 3));
 	}
 
 	public Dimension windowSize() {
-		return new Dimension(X_LENGTH * CELL_WIDTH + MARGIN * 2, Y_LENGTH * CELL_WIDTH + MARGIN * 2);
+		return new Dimension(X_LENGTH * CELL_WIDTH + MARGIN * 2, Y_LENGTH * CELL_WIDTH + (MARGIN * 2) + (MARGIN / 2));
 	}
 }

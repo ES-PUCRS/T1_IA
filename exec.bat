@@ -2,6 +2,7 @@
 
 del /q class\
 if NOT exist class MKDIR class
+if NOT exist SavedLogs MKDIR SavedLogs
 
 javac *.java -d class
 

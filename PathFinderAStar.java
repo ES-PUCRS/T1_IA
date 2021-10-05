@@ -40,6 +40,8 @@ public class PathFinderAStar {
     private final int xExitCoord;
     private final int yExitCoord;
 
+    private Logger logger;
+
     public PathFinderAStar(Table table) {
         this.connections = new ArrayList<Node>();
         this.unknown = new ArrayList<Node>();
@@ -49,6 +51,11 @@ public class PathFinderAStar {
         this.xExitCoord = table.getExit() % table.X_LENGTH;
         this.yExitCoord = table.getExit() / table.X_LENGTH;
         this.roadStones = table.getRoad().size();
+
+        if(!App.DISPLAY) {
+            logger = Logger.getInstance();
+            logger.initFile("result");
+        }
     }
 
 
@@ -64,20 +71,26 @@ public class PathFinderAStar {
         try {
             current = begin = findById(unknown, table.getEntrance());
             finish = findById(unknown, table.getExit());
-            table.setSpot(Color.BLUE, current.getId());
+            if(App.DISPLAY)
+                table.setSpot(Color.BLUE, current.getId());
             unknown.remove(current);
         } catch (NullPointerException npe) {
             String error = "There is no entrance or exit.";
             table.setMessage(error);
+            logger.publishLog(error);
+            logger.close();
             throw new
                 InterruptedException(error);
         } catch (NoSuchFieldException nsfe) {
             nsfe.printStackTrace();
         }
-
-        table.setMessage(
-            search()
-        );
+        String msg = search();
+        if(App.DISPLAY)
+            table.setMessage(msg);
+        else {
+            logger.publishLog(msg);
+            logger.close();
+        }
     }
 
 
@@ -101,13 +114,16 @@ public class PathFinderAStar {
         aux = finish;
         distance = finish.getWeight();
         while(aux != null){
-            try {
-                table.setSpot(FINISH_PATH, aux.getId());
-            } catch (NoSuchFieldException ignored) {}
-
-            path = (aux.getId()+1)+" "+path;
+            if(App.DISPLAY)
+                try {
+                        table.setSpot(FINISH_PATH, aux.getId());
+                } catch (NoSuchFieldException ignored) {}
+            else
+            path = (aux.getId())+", "+path;
             aux = aux.getPrev();
         }
+        logger.publishLog("[" + path.substring(0, path.length()-2) + "]");
+
         return "Distance: " + distance;
     }
 
@@ -122,8 +138,10 @@ public class PathFinderAStar {
     private Node moveTo(Node prev, Node node) {
         if(node == null) return node;
         try {
-            table.setSpot(PREVIOUS_SPOTS, prev.getId());
-            table.setSpot(CURRENT_SPOT, node.getId());
+            if(App.DISPLAY) {
+                table.setSpot(PREVIOUS_SPOTS, prev.getId());
+                table.setSpot(CURRENT_SPOT, node.getId());
+            }
             unknown.remove(node);
         } catch (NoSuchFieldException nsfe) {
             nsfe.printStackTrace();
@@ -161,7 +179,8 @@ public class PathFinderAStar {
                     aux.setPrev(current); 
                     connections.add(aux);
                     unknown.remove(aux);
-                    table.setSpot(UNKNOWN_SPOT, aux.getId());
+                    if(App.DISPLAY)
+                        table.setSpot(UNKNOWN_SPOT, aux.getId());
                 } catch (NoSuchFieldException nsfe) {
                     nsfe.printStackTrace();
                 }

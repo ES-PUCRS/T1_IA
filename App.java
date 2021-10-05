@@ -6,10 +6,13 @@ import java.io.*;
 public class App {
 
 	public static final int delay 	= 2; 	//ms
+	public static final int delay_f	= 500;	//ms
 	public static final int begin 	= 1500; //ms
 	public static final int between = 3000; //ms
 
 	public static final boolean PDM = false;
+	public static final boolean DISPLAY = false;
+	public static final boolean LEFT_WHEN_FIND_FIRST = true;
 
 	private static JFrame frame;
 	public static void main(String[] args) throws IOException, InterruptedException {
@@ -56,6 +59,8 @@ public class App {
 
 	private static Table init(String tableFile, String windowName) {
 		Table table = Table.newInstance(tableFile);
+		if(!DISPLAY) return table;
+
 		frame = new JFrame(windowName);
 		TablePanel panel = new TablePanel();
 		JScrollPane scrollPane = new JScrollPane(panel);

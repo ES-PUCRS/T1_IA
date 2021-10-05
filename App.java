@@ -11,7 +11,7 @@ public class App {
 	public static final int between = 3000; //ms
 
 	public static final boolean PDM = false;
-	public static final boolean DISPLAY = false;
+	public static final boolean DISPLAY = true;
 	public static final boolean LEFT_WHEN_FIND_FIRST = true;
 
 	private static JFrame frame;

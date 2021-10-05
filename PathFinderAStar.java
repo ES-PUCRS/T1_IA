@@ -122,7 +122,9 @@ public class PathFinderAStar {
             path = (aux.getId())+", "+path;
             aux = aux.getPrev();
         }
-        logger.publishLog("[" + path.substring(0, path.length()-2) + "]");
+        
+        if(!path.isEmpty())
+            logger.publishLog("[" + path.substring(0, path.length()-2) + "]");
 
         return "Distance: " + distance;
     }

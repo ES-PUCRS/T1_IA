@@ -43,7 +43,7 @@ class GeneticAlgorith {
 		exit = table.getExit();
 		
 		if(generations == 0)
-			generations = 1000000000;
+			generations = Integer.MAX_VALUE;
 		mutationRate = mutation;
 		this.generation = generations;
 
@@ -98,20 +98,20 @@ class GeneticAlgorith {
 	/*
 	 *	Use to randomly change a gene on a chromosome
 	 */
+	private static int column = 0;
 	public static void mutation(int[][] population, int mutationRate) {
 		int i, size;
 		i = rnd.nextInt((population.length * mutationRate) / 100);
-		do {
-			i--;
+		do { i--;
+			if(column > population[0].length - 2)
+				column = 0;
+			else
+				column++;
 
-			int line = rnd.nextInt(population.length);
-			int column = rnd.nextInt(population[0].length - 2);
-			int gene = rnd.nextInt(GENES);
-
-			if(population[line][column] == gene)
-				gene = rnd.nextInt(GENES);
-
-			population[line][column] = gene;
+			population
+				[rnd.nextInt(population.length)]
+				[column]
+					= rnd.nextInt(GENES);
 		} while( i > 0 );
 	}
 
@@ -170,7 +170,8 @@ class GeneticAlgorith {
 		// System.out.println(completePath(chromosome, path, gene, fitness));
 
 		if(App.DISPLAY) {
-			table.clear();
+			if(fit!=0)
+				table.clear();
 			table.setMessage( message(generation, fitness) );
 		} else if (hited)
 			logger.publishLog(chromosome, generation, gene, hit);
@@ -205,19 +206,19 @@ class GeneticAlgorith {
 						if(App.LEFT_WHEN_FIND_FIRST)
 							quit = false;
 	        		}
-        		return 0;
+        		return - (table.getTableSize() / 4);
 			} 
 
 			if(table.isWall(pos)) {
 				hit++;
-				fits += 12 + hit;
+				fits += 50 + hit;
 				return fits;
 			}
 
 			if(table.visited(pos))
-				return fits + 5;
+				return fits + 15;
 			
-			return fits + 1;	
+			return fits;	
 		}
 	}
 
@@ -229,30 +230,6 @@ class GeneticAlgorith {
             Math.abs((pos / table.X_LENGTH) - yExitCoord);
     }
 
-	// private static String completePath(int[] chromosome, String path, int gene, int fitness) {
-	// 	if(false) {
-	// 		int g = gene;
-	// 		if(g < chromosome.length - 1)
-	// 			path += " |X|";
-	// 		for (;g < chromosome.length - 1; g++) {
-	// 			switch(chromosome[g]) {
-	// 				case NORTH:
-	// 					path += " U";
-	// 					break;
-	// 				case SOUTH:
-	// 					path += " D";
-	// 					break;
-	// 				case EAST:
-	// 					path += " R";
-	// 					break;
-	// 				case WEST:
-	// 					path += " L";
-	// 					break;
-	// 			}
-	// 		}
-	// 	}
-	// 	return path + "\t F: " + fitness;
-	// }
 
 
 	/*
@@ -312,6 +289,6 @@ class GeneticAlgorith {
 	private static String message(int g, int f) {
 		return
 			"Generation: " + g + "\n"+
-			"Fitness: " + ( (double) f/100);
+			"Fitness: " + ( (double) f/1000);
 	}
 }

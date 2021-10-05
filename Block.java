@@ -4,6 +4,8 @@ public class Block {
 	final boolean wall;
 	String label;
 
+	boolean visited;
+
 	boolean ball;
 	Color color;
 	
@@ -12,17 +14,21 @@ public class Block {
 		label = null;
 		color = null;
 		ball = false;
+		visited = false;
 	}
+	
 	public Block(
 		boolean wall,
 		String label,
 		boolean ball,
-		Color color
+		Color color,
+		boolean visited
 	) {
 		this.wall = wall;
 		this.label = label;
 		this.color = color;
 		this.ball = ball;
+		this.visited = visited;
 	}
 
 	Block copyOf() {
@@ -30,7 +36,8 @@ public class Block {
 			this.wall,
 			this.label,
 			this.ball,
-			this.color
+			this.color,
+			this.visited
 		);
 	}
 }

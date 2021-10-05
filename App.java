@@ -5,7 +5,7 @@ import java.io.*;
 
 public class App {
 
-	public static final int delay 	= 5; 	//ms
+	public static final int delay 	= 2; 	//ms
 	public static final int begin 	= 1500; //ms
 	public static final int between = 3000; //ms
 

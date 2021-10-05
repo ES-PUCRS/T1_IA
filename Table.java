@@ -155,15 +155,16 @@ public class Table {
 
 	public void clear() {
 		blocks = copyArray(blank);
-		panel.repaint();
 	}
 
 	private Integer move(Color color, int pos) {
+		try { Thread.sleep(App.delay); }
+		catch(Exception ignore){}		
 		if(isWall(pos) == true) {
 			try {
 				setWallSpot(Color.RED, pos);
 			} catch(Exception e) { e.printStackTrace(); }
-			return null;
+			return pos;
 		}
 
 		try{
@@ -178,7 +179,7 @@ public class Table {
 	}
 	public Integer moveDownPos(Color color, int cur) {
 		int pos = cur + X_LENGTH;
-		if( pos > tableSize ) return null;
+		if( pos >= tableSize ) return null;
 		return move(color, pos);
 	}
 	public Integer moveLeftPos(Color color, int cur) {
@@ -188,7 +189,7 @@ public class Table {
 	}
 	public Integer moveRightPos(Color color, int cur) {
 		int pos = cur + 1;
-		if( (pos/X_LENGTH) != (cur/X_LENGTH) || pos > tableSize ) return null;
+		if( (pos/X_LENGTH) != (cur/X_LENGTH) || pos >= tableSize ) return null;
 		return move(color, pos);
 	}
 
@@ -200,7 +201,7 @@ public class Table {
 	}
 	public Integer getDownPos(int cur)  {
 		int pos = cur + X_LENGTH; 
-		if( pos > tableSize ) return null;
+		if( pos >= tableSize ) return null;
 		return pos;
 	}
 	public Integer getLeftPos(int cur)  {
@@ -214,10 +215,19 @@ public class Table {
 		return pos;
 	}
 
+	public int 	 	getTableSize(){ return tableSize; }
 	public Integer 	getExit() 	  { return exit; }
 	public Integer 	getEntrance() { return entrance; }
 	public List 	getRoad() 	  { return Arrays.asList(road.toArray()); }
 
+	public boolean visited(int pos){
+		for(Block b : blocks) {
+			System.out.print(" "+b.visited);
+		}
+		System.out.println();
+
+		return blocks[pos].visited;
+	}
 	public boolean isWall(int pos) { return blocks[pos].wall; }
 	public boolean isWall(int x, int y) { return blocks[(y * Y_LENGTH) + x].wall; }
 
@@ -242,6 +252,7 @@ public class Table {
 			throw new NoSuchFieldException("You are trying to move inside a wall.\nPOS:" + pos);
 		blocks[pos].ball = true;
 		blocks[pos].color = color;
+		blocks[pos].visited = true;
 		panel.repaint();
 	}
 
@@ -257,6 +268,7 @@ public class Table {
 			throw new NoSuchFieldException("You are trying to move a non wall.\nPOS:" + pos);
 		blocks[pos].ball = true;
 		blocks[pos].color = color;
+		blocks[pos].visited = true;
 		panel.repaint();
 	}
 
